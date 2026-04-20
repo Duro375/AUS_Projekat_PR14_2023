@@ -361,7 +361,3 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-
-# Folders
-dCom/bin/Debug/
-dCom/obj/Debug/
