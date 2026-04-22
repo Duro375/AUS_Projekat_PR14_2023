@@ -24,15 +24,39 @@ namespace Modbus.ModbusFunctions
         /// <inheritdoc />
         public override byte[] PackRequest()
         {
-            //TO DO: IMPLEMENT
-            throw new NotImplementedException();
+            ModbusWriteCommandParameters writeParams = CommandParameters as ModbusWriteCommandParameters;
+            byte[] ret_val = new byte[12];
+            ret_val[1] = (byte)(writeParams.TransactionId);
+            ret_val[0] = (byte)(writeParams.TransactionId >> 8);
+            ret_val[3] = (byte)(writeParams.ProtocolId);
+            ret_val[2] = (byte)(writeParams.ProtocolId >> 8);
+            ret_val[5] = (byte)(writeParams.Length);
+            ret_val[4] = (byte)(writeParams.Length >> 8);
+            ret_val[6] = writeParams.UnitId;
+            ret_val[7] = writeParams.FunctionCode;
+            ret_val[9] = (byte)(writeParams.OutputAddress);
+            ret_val[8] = (byte)(writeParams.OutputAddress >> 8);
+            ret_val[11] = (byte)(writeParams.Value);
+            ret_val[10] = (byte)(writeParams.Value >> 8);
+            return ret_val;
         }
 
         /// <inheritdoc />
         public override Dictionary<Tuple<PointType, ushort>, ushort> ParseResponse(byte[] response)
         {
-            //TO DO: IMPLEMENT
-            throw new NotImplementedException();
+            Dictionary<Tuple<PointType, ushort>, ushort> ret_val = new Dictionary<Tuple<PointType, ushort>, ushort>();
+
+            byte regAddres1 = response[8];
+            byte regAddres2 = response[9];
+
+            byte val1 = response[10];
+            byte val2 = response[11];
+
+            ushort adress = (ushort)((ushort)(regAddres1 << 8) + regAddres2);
+            ushort value = (ushort)((ushort)(val1 << 8) + val2);
+            Tuple<PointType, ushort> index = Tuple.Create(PointType.DIGITAL_OUTPUT, adress);
+            ret_val.Add(index, value);
+            return ret_val;
         }
     }
 }
