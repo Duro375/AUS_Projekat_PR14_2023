@@ -1,5 +1,6 @@
 ﻿using Common;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace ProcessingModule
@@ -60,10 +61,22 @@ namespace ProcessingModule
 
 		private void AutomationWorker_DoWork()
 		{
-			//while (!disposedValue)
-			//{
-			//}
-		}
+            List<IConfigItem> configItems = configuration.GetConfigurationItems();
+            while (!disposedValue)
+            {
+                automationTrigger.WaitOne();
+                foreach (IConfigItem configItem in configItems)
+                {
+                    configItem.SecondsPassedSinceLastPoll++;
+
+                    if (configItem.AcquisitionInterval == configItem.SecondsPassedSinceLastPoll)
+                    {
+                        processingManager.ExecuteReadCommand(configItem, configuration.GetTransactionId(), configuration.UnitAddress, configItem.StartAddress, configItem.NumberOfRegisters);
+                        configItem.SecondsPassedSinceLastPoll = 0;
+                    }
+                }
+            }
+        }
 
 		#region IDisposable Support
 		private bool disposedValue = false; // To detect redundant calls
