@@ -58,11 +58,9 @@ namespace Modbus.ModbusFunctions
                 int mask = 1;
                 for (int j = 0; j < 8 && cnt < quantity; j++, cnt++)
                 {
-                    ushort value = (ushort)(response[9 + i] & mask);
-                    Debug.Write(response[9 + i] + "=>");
-                    Debug.Write(value + "\n");
+                    ushort value = (ushort)((response[9 + i] & mask) > 0 ? 1 : 0);
                     mask = mask << 1;
-                    Tuple<PointType, ushort> index = Tuple.Create(PointType.DIGITAL_OUTPUT, (ushort)(adress + i));
+                    Tuple<PointType, ushort> index = Tuple.Create(PointType.DIGITAL_OUTPUT, (ushort)(adress + j));
                     ret_val.Add(index, value);
                 }
             }
