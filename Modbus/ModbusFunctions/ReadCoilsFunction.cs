@@ -2,6 +2,7 @@
 using Modbus.FunctionParameters;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Reflection;
 
@@ -24,15 +25,49 @@ namespace Modbus.ModbusFunctions
         /// <inheritdoc/>
         public override byte[] PackRequest()
         {
-            //TO DO: IMPLEMENT
-            throw new NotImplementedException();
+            ModbusReadCommandParameters readParams = CommandParameters as ModbusReadCommandParameters;
+            byte[] ret_val = new byte[12];
+            ret_val[1] = (byte)(readParams.TransactionId);
+            ret_val[0] = (byte)(readParams.TransactionId >> 8);
+            ret_val[3] = (byte)(readParams.ProtocolId);
+            ret_val[2] = (byte)(readParams.ProtocolId >> 8);
+            ret_val[5] = (byte)(readParams.Length);
+            ret_val[4] = (byte)(readParams.Length >> 8);
+            ret_val[6] = readParams.UnitId;
+            ret_val[7] = readParams.FunctionCode;
+            ret_val[9] = (byte)(readParams.StartAddress);
+            ret_val[8] = (byte)(readParams.StartAddress >> 8);
+            ret_val[11] = (byte)(readParams.Quantity);
+            ret_val[10] = (byte)(readParams.Quantity >> 8);
+            return ret_val;
         }
 
         /// <inheritdoc />
         public override Dictionary<Tuple<PointType, ushort>, ushort> ParseResponse(byte[] response)
         {
-            //TO DO: IMPLEMENT
-            throw new NotImplementedException();
+            Dictionary<Tuple<PointType, ushort>, ushort> ret_val = new Dictionary<Tuple<PointType, ushort>, ushort>();
+
+            int byteCnt = response[8];
+
+            ushort adress = ((ModbusReadCommandParameters)CommandParameters).StartAddress;
+            ushort quantity = ((ModbusReadCommandParameters)CommandParameters).Quantity;
+            int cnt = 0;
+
+            for (int i = 0; i < byteCnt; i++)
+            {
+                int mask = 1;
+                for (int j = 0; j < 8 && cnt < quantity; j++, cnt++)
+                {
+                    ushort value = (ushort)(response[9 + i] & mask);
+                    Debug.Write(response[9 + i] + "=>");
+                    Debug.Write(value + "\n");
+                    mask = mask << 1;
+                    Tuple<PointType, ushort> index = Tuple.Create(PointType.DIGITAL_OUTPUT, (ushort)(adress + i));
+                    ret_val.Add(index, value);
+                }
+            }
+
+            return ret_val;
         }
     }
 }
