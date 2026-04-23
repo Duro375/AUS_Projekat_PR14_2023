@@ -3,6 +3,7 @@ TCP 33131
 
 DO_REG	1 1500	0  0	  1     0  DO  @DigOutSTOP 3
 DO_REG	1 1502	0  0	  1     0  DO  @DigOutVentil 3
-DO_REG	2 1505	0  0	  1     0  DO  @DigOutPrekidac 3
+DO_REG	1 1505	0  0	  1     0  DO  @DigOutPrekidac1 3
+DO_REG	1 1506	0  0	  1     0  DO  @DigOutPrekidac2 3
 IN_REG  1 400	0  0   4095  2000  AI  @AnaIn  4
 HR_INT  1 2300  0  0   4095  1200  AO  @AnaOut 4
